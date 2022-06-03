@@ -4,33 +4,66 @@ const path = require('path')
 const bodyParser = require("body-parser");
 var favicon = require('serve-favicon');
 const expressLayout = require('express-ejs-layouts')
+const webRoutes = require("./routes/web");
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoDBStore = require("connect-mongodb-session")(session);
+require('dotenv').config();
+const flash = require('express-flash');
+
+const PORT = process.env.PORT || 3300;
+const MONGODB_URI = "mongodb://localhost:27017/pizzaTime";
+
+app.use(flash())
 
 // Assets
+app.use(express.json())
 app.use(express.static(path.join(__dirname, "public")));
 app.use(favicon(path.join(__dirname,'public','favicon.ico')));
 
-app.use(expressLayout)
+app.use(expressLayout) // only for ejs <%- body %> syntax
+
+// Session
+const store = new MongoDBStore({uri: MONGODB_URI, collection: 'sessions'})
+app.use(session({
+    secret: process.env.COOKIE_SECRET, 
+    resave: false, 
+    saveUninitialized: false,
+    cookie: { maxAge: 1000*60*60*24 }, // 24 hours
+    store: store 
+}));
+
+// Global middleware
+app.use((req, res, next) => {
+    res.locals.session = req.session;
+    next();
+})
+
 app.set('views', path.join(__dirname, 'resources/views'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.set("view engine", "ejs");
 
-app.get("/", (req, res) => {
-    res.render('home');
-});
+app.use(webRoutes);
 
-app.get("/cart", (req, res) => {
-    res.render('customers/cart');
-});
-
-app.get("/register", (req, res) => {
-    res.render('auth/register');
-});
-
-app.get("/login", (req, res) => {
-    res.render('auth/login');
-});
-
-const PORT = process.env.PORT || 3300;
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
+
+// Database connection
+mongoose.connect(MONGODB_URI, () => {
+    console.log("connected to db");
+});
+
+// (async () => {
+//     try{
+//         await mongoose.connect(MONGODB_URI, {
+//             useNewUrlParser: true,
+//             useUnifiedTopology: true,
+//             useCreateIndex: true
+//         }, () => {
+//             console.log('connected to database...');
+//         });
+//     } catch(err) {
+//         console.log({err: err});
+//     }
+// }) ();

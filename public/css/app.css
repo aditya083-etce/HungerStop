@@ -303,6 +303,13 @@ body {
   color: #232323;
 }
 
+body h2,
+body h6,
+body h1,
+body span {
+  letter-spacing: 3px;
+}
+
 nav li:last-child a {
   background: #fe5f1e;
 }
@@ -312,6 +319,7 @@ nav li:last-child a:hover {
 }
 
 nav li a {
+  letter-spacing: 3px;
   transition: all 0.3s ease-in-out;
 }
 

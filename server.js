@@ -10,21 +10,13 @@ const session = require('express-session');
 const MongoDBStore = require("connect-mongodb-session")(session);
 require('dotenv').config();
 const flash = require('express-flash');
+const passport = require('passport');
 
 const PORT = process.env.PORT || 3300;
 const MONGODB_URI = "mongodb://localhost:27017/pizzaTime";
-
-app.use(flash())
-
-// Assets
-app.use(express.json())
-app.use(express.static(path.join(__dirname, "public")));
-app.use(favicon(path.join(__dirname,'public','favicon.ico')));
-
-app.use(expressLayout) // only for ejs <%- body %> syntax
+const store = new MongoDBStore({uri: MONGODB_URI, collection: 'sessions'})
 
 // Session
-const store = new MongoDBStore({uri: MONGODB_URI, collection: 'sessions'})
 app.use(session({
     secret: process.env.COOKIE_SECRET, 
     resave: false, 
@@ -33,18 +25,34 @@ app.use(session({
     store: store 
 }));
 
+// Passport config
+const passportInit = require('./app/config/passport')
+passportInit(passport)
+app.use(passport.initialize())
+app.use(passport.session())
+
 // Global middleware
 app.use((req, res, next) => {
     res.locals.session = req.session;
+    res.locals.user = req.user;
     next();
 })
 
+// Assets
+app.use(flash())
+app.use(expressLayout) // only for ejs <%- body %> syntax
+app.use(express.static(path.join(__dirname, "public")));
+app.use(favicon(path.join(__dirname,'public','favicon.ico')));
+
 app.set('views', path.join(__dirname, 'resources/views'));
+app.use(express.json())
 app.use(bodyParser.urlencoded({extended: false}));
 app.set("view engine", "ejs");
 
+// Routes
 app.use(webRoutes);
 
+// Server connection
 app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });

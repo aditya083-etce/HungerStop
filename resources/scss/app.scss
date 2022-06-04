@@ -6,6 +6,9 @@ body{
     font-family: 'Lato', sans-serif;
     -webkit-font-smoothing: antialiased;
     color: $dark;
+    h2,h6,h1, span {
+        letter-spacing: 3px;
+    }
 }
 
 nav li:last-child a {
@@ -16,6 +19,7 @@ nav li:last-child a {
 }
 
 nav li a {
+    letter-spacing: 3px;
     transition: $smooth;
     &:hover{
         color: $primary;

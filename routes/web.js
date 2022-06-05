@@ -4,8 +4,9 @@ const router = express.Router();
 const { gethome } = require("../app/http/controllers/homeController");
 const { getRegister, getLogin, postRegister, postLogin, postLogout } = require("../app/http/controllers/authController");
 const { getCustomerCart, updateCustomerCart } = require("../app/http/controllers/customers/cartController");
-const { postOrders, getOrders } = require("../app/http/controllers/customers/orderController");
+const { postOrders, getOrders, getOrderStatus } = require("../app/http/controllers/customers/orderController");
 const { getAdminOrders } = require("../app/http/controllers/admin/orderController")
+const { postOrderStatus } = require("../app/http/controllers/admin/statusController")
 
 const isNotAuth = require("../app/http/middlewares/isNotAuth");
 const isAuth = require("../app/http/middlewares/isAuth");
@@ -32,9 +33,11 @@ router.post("/updateCart", updateCustomerCart);
 // Customer orders
 router.post("/orders", postOrders);
 router.get("/customer/orders", isAuth, getOrders );
+router.get("/customer/orders/:id", isAuth, getOrderStatus );
 
 // Admin
 router.get("/admin/orders", isAdmin, getAdminOrders );
+router.post("/admin/order/status", isAdmin, postOrderStatus );
 
 
 

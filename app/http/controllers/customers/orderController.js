@@ -32,3 +32,14 @@ exports.getOrders = async (req, res) => {
     res.header('Cache-Control', 'no-store')
     res.render('customers/orders', {orders: orders, moment: moment});
 };
+
+exports.getOrderStatus = async (req, res) => {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId);
+
+    // Authorise user
+    if (req.user._id.toString() === order.customer_id.toString()){
+        return res.render('customers/status', {order: order});
+    }
+    return res.redirect("/");
+}

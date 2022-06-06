@@ -8,13 +8,13 @@ const webRoutes = require("./routes/web");
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require("connect-mongodb-session")(session);
-require('dotenv').config();
 const flash = require('express-flash');
 const passport = require('passport');
 const Emitter = require('events')
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3300;
-const MONGODB_URI = "mongodb://localhost:27017/pizzaTime";
+const MONGODB_URI = process.env.DATABASE_CONNECTION;
 const store = new MongoDBStore({uri: MONGODB_URI, collection: 'sessions'})
 
 // Event emitter
@@ -57,15 +57,24 @@ app.set("view engine", "ejs");
 // Routes
 app.use(webRoutes);
 
+// goto error page on random url
+app.use((req, res)=> {
+    res.status(404).render('error');
+})
+
 // Server connection
 const server = app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
 
 // Database connection
-mongoose.connect(MONGODB_URI, () => {
-    console.log("Database connected...");
-});
+mongoose.connect(MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => {
+    console.log('Database connected...');
+})
 
 // Socket
 const io = require('socket.io')(server)

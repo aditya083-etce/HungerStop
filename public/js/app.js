@@ -29944,8 +29944,7 @@ function updateStatus(order) {
 updateStatus(order); //---------------------------------------------------------------------
 // Socket
 
-var socket = io();
-Object(_admin__WEBPACK_IMPORTED_MODULE_3__["initAdmin"])(socket); // Join
+var socket = io(); // Join
 
 if (order) {
   socket.emit('join', "order_".concat(order._id)); // creating a room
@@ -29954,6 +29953,7 @@ if (order) {
 var adminPath = window.location.pathname; // getting the url
 
 if (adminPath.includes('admin')) {
+  Object(_admin__WEBPACK_IMPORTED_MODULE_3__["initAdmin"])(socket);
   socket.emit('join', "adminRoom"); // creating a room
 } // control is coming from server.js
 

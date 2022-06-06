@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { gethome } = require("../app/http/controllers/homeController");
+const { gethome, gotoOrders } = require("../app/http/controllers/homeController");
 const { getRegister, getLogin, postRegister, postLogin, postLogout } = require("../app/http/controllers/authController");
 const { getCustomerCart, updateCustomerCart } = require("../app/http/controllers/customers/cartController");
 const { postOrders, getOrders, getOrderStatus } = require("../app/http/controllers/customers/orderController");
@@ -12,7 +12,7 @@ const isNotAuth = require("../app/http/middlewares/isNotAuth");
 const isAuth = require("../app/http/middlewares/isAuth");
 const isAdmin = require("../app/http/middlewares/isAdmin")
 
-// Hme
+// Home
 router.get("/", gethome);
 
 // Register
@@ -39,6 +39,8 @@ router.get("/customer/orders/:id", isAuth, getOrderStatus );
 router.get("/admin/orders", isAdmin, getAdminOrders );
 router.post("/admin/order/status", isAdmin, postOrderStatus );
 
+// Orders
+router.get("/orders", isAuth, gotoOrders);
 
 
 module.exports = router;

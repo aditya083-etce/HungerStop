@@ -17,10 +17,21 @@ exports.postOrders = async (req, res) => {
         address: address,
     })
 
-    order.save().then((result) => {
-        req.flash('success', 'YaaaHUUUuu !!... Arriving at your doorstep shortly 🔥')
-        delete req.session.cart
-        return res.redirect('/customer/orders')
+    order.save().then(async (result) => {
+        try{
+            let placedOrder = await Order.populate(result, { path: 'customer_id'})
+            req.flash('success', 'YaaaHUUUuu !!... Arriving at your doorstep shortly 🔥')
+            delete req.session.cart
+
+            // Emit event
+            const eventEmitter = req.app.get('eventEmitter');
+            eventEmitter.emit('orderPlaced', placedOrder)
+
+            return res.redirect('/customer/orders')
+        }catch(err) {
+            res.status(500).send({ err: "Server error" });
+            console.log(err)
+        }
     }).catch(err => {
         req.flash('error', 'Something went wrong 🥶')
         return res.redirect('./cart')
@@ -28,7 +39,10 @@ exports.postOrders = async (req, res) => {
 };
 
 exports.getOrders = async (req, res) => {
-    const orders = await Order.find({customer_id: req.user._id}, null,{ sort : { 'createdAt' : -1}});
+    const orders = await Order.find({
+        customer_id: req.user._id,
+        status: { $ne: 'completed' }
+    }, null, { sort : { 'createdAt' : -1}});
     res.header('Cache-Control', 'no-store')
     res.render('customers/orders', {orders: orders, moment: moment});
 };

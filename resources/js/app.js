@@ -6,6 +6,9 @@ import { initAdmin } from './admin';
 let addToCart = document.querySelectorAll('.add-to-cart');
 let cartCounter = document.querySelector('#cartCounter');
 
+//--------------------------------------------------------------------
+
+// Update cart
 function updateCart(pizza) {
     axios.post('/updateCart', pizza).then(res => {
         // console.log(res);
@@ -36,15 +39,18 @@ addToCart.forEach((btn) => {
     })
 })
 
+// ----------------------------------------------------------------------
+
+
 // Remove order placed msg
 const alertMsg = document.querySelector('#success-alert')
-if(alertMsg) {
+if (alertMsg) {
     setTimeout(() => {
         alertMsg.remove()
     }, 2000)
 }
 
-initAdmin();
+// ---------------------------------------------------------------------
 
 // Update status order
 let statusline = document.querySelectorAll('.status_line');
@@ -54,19 +60,25 @@ order = JSON.parse(order)
 
 let time = document.createElement('small');
 
-function updateStatus(order){
+function updateStatus(order) {
+
+    statusline.forEach( (curr) => {
+        curr.classList.remove('step-completed')
+        curr.classList.remove('current')
+    })
+
     let stepCompleted = true;
 
     statusline.forEach((curr) => {
         let currstatus = curr.dataset.status;
-        if(stepCompleted){
+        if (stepCompleted) {
             curr.classList.add('step-completed')
         }
-        if(currstatus === order.status) {
+        if (currstatus === order.status) {
             stepCompleted = false;
             time.innerText = moment(order.updatedAt).format('hh:mm A');
             curr.appendChild(time)
-            if(curr.nextElementSibling){
+            if (curr.nextElementSibling) {
                 curr.nextElementSibling.classList.add('current')
             }
         }
@@ -75,3 +87,34 @@ function updateStatus(order){
 }
 
 updateStatus(order)
+
+//---------------------------------------------------------------------
+
+// Socket
+let socket = io();
+initAdmin(socket);
+
+// Join
+if (order) {
+    socket.emit('join', `order_${order._id}`)  // creating a room
+}
+
+let adminPath = window.location.pathname // getting the url
+if(adminPath.includes('admin')){
+    socket.emit('join', `adminRoom`) // creating a room
+}
+
+// control is coming from server.js
+socket.on('orderUpdated', (data) => {
+    const updatedOrder = { ...order }
+    updatedOrder.updatedAt = moment().format()
+    updatedOrder.status = data.status
+    updateStatus(updatedOrder)
+    new Noty({
+        type: 'success',
+        timeout: 1000,
+        progressBar: false,
+        layout: 'bottomLeft',
+        text: 'Order updated'
+    }).show();
+})

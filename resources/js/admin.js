@@ -12,12 +12,32 @@ export function initAdmin(socket) {
             "X-Requested-With": "XMLHttpRequest"
         }
     }).then(res => {
-        orders = res.data
+        orders = res.data;
+        // here data is received from model
         markup = generateMarkup(orders)
         orderTableBody.innerHTML = markup
     }).catch(err => {
         console.log(err)
     })
+
+
+    // control is coming from server.js
+    socket.on('orderPlaced', (placedOrder) => {
+        new Noty({
+            type: 'success',
+            timeout: 1000,
+            progressBar: false,
+            layout: 'bottomLeft',
+            text: 'New order received'
+        }).show();
+        // unshift added at top
+        orders.unshift(placedOrder)
+        orderTableBody.innerHTML = ''
+        orderTableBody.innerHTML = generateMarkup(orders)
+    })
+
+
+    // functions to render the admin order list page
 
     function renderItems(items) {
         let parsedItems = Object.values(items)
@@ -26,8 +46,8 @@ export function initAdmin(socket) {
                 <p>${ menuItem.item.name } - ${ menuItem.qty } pcs </p>
             `
         }).join('')
-      }
-
+    }
+    
     function generateMarkup(orders) {
         return orders.map(order => {
             return `

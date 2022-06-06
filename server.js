@@ -11,10 +11,15 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 require('dotenv').config();
 const flash = require('express-flash');
 const passport = require('passport');
+const Emitter = require('events')
 
 const PORT = process.env.PORT || 3300;
 const MONGODB_URI = "mongodb://localhost:27017/pizzaTime";
 const store = new MongoDBStore({uri: MONGODB_URI, collection: 'sessions'})
+
+// Event emitter
+const eventEmitter = new Emitter()
+app.set('eventEmitter', eventEmitter)
 
 // Session
 app.use(session({
@@ -53,14 +58,34 @@ app.set("view engine", "ejs");
 app.use(webRoutes);
 
 // Server connection
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Listening on port ${PORT}`);
 });
 
 // Database connection
 mongoose.connect(MONGODB_URI, () => {
-    console.log("connected to db");
+    console.log("Database connected...");
 });
+
+// Socket
+const io = require('socket.io')(server)
+io.on('connection', (socket) => {
+    // Join 
+    socket.on('join', (roomId) => {
+        console.log(roomId);
+        socket.join(roomId)
+    })
+}) // ^--- this is the basic setup
+
+// socket event emmiter for order status update -- done on admin side and changes seen on customer side
+eventEmitter.on('orderUpdated', (data) => {
+    io.to(`order_${data.id}`).emit('orderUpdated', data)
+})
+
+// socket event emmiter for order placed -- done on customer side and changes seen on admin side
+eventEmitter.on('orderPlaced', (placedOrder) => {
+    io.to(`adminRoom`).emit('orderPlaced', placedOrder)
+})
 
 // (async () => {
 //     try{

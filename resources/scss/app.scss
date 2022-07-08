@@ -80,6 +80,12 @@ section.cart{
     }
 }
 
+section.orders{
+    .orderBg{
+        box-shadow: -30px 30px 20px rgba(0,0,0,0.3);
+    }
+}
+
 section.login{
     background: $secondary;
     min-height: calc(100vh - 86px);

@@ -3,7 +3,9 @@
 @import '~noty/src/themes/mint.scss';
 
 body{
-    font-family: 'Lato', sans-serif;
+    background: $base;
+    font-family: 'Delius Unicase', sans-serif;
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
     color: $dark;
     h2,h6,h1, span {
@@ -11,11 +13,25 @@ body{
     }
 }
 
+img.pizzaimg{
+    filter: drop-shadow(10px 10px 10px rgba(0,0,0,0.6));
+    transition: 1s;
+}
+
+img.pizzaimg:hover{
+    transform: scale(1.1);
+    z-index: 2;
+}
+
 nav li:last-child a {
     background: $primary;
     &:hover{
         background: $primary-hover;
     }
+}
+
+.navBg{
+    filter: drop-shadow(10px 10px 10px rgba(0,0,0,0.6));
 }
 
 nav li a {
@@ -28,6 +44,7 @@ nav li a {
 
 section.hero {
     background: $secondary;
+    filter: drop-shadow(10px 10px 10px rgba(0,0,0,0.4));
 }
 
 .size {
@@ -40,7 +57,7 @@ section.hero {
     transition: $smooth;
     &:hover{
         background: $primary;
-        border-color: $pure;
+        border-color: $secondary;
         color: $pure;
     }
     &:focus{
@@ -71,6 +88,10 @@ section.login{
         &:hover{
             color: $primary-hover;
         }
+    };
+    .formBg{
+        background: $base;
+        box-shadow: -30px 30px 20px rgba(0,0,0,0.3);
     }
 }
 

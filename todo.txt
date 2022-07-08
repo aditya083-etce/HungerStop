@@ -1,0 +1,7 @@
+1. make it into a canteeen type website
+2. change pic , and a dept address, few changes in database
+3. Foods -> puri , veg thali, non veg thali, roll, fried rice, pulao, snaks, sprite, glucose, water, 
+4. Order just Now, Don't ever feel hungry again.
+5. Change the logo, colors, if possible font 
+
+hunger toasted
